@@ -18,7 +18,6 @@ defmodule TeslaOAuth2ClientAuth do
 
   ## Options
   A `TeslaOAuth2ClientAuth` middleware receives a `t:opts/0` as an option, which contains:
-  - the client id (`:client_id`), mandatory
   - the client configuration (`:client_config`, see `t:client_config/0`)
   - the OAuth2 or OpenID Connect server metadata (`:server_metadata`)
   - any other option as documented by the implementations
@@ -42,15 +41,16 @@ defmodule TeslaOAuth2ClientAuth do
   end
 
   @type opts :: %{
-          required(:client_id) => String.t(),
           required(:client_config) => client_config(),
-          required(:server_metadata) => server_metadata(),
+          optional(:server_metadata) => server_metadata(),
           optional(atom()) => any()
         }
 
   @typedoc """
   Client configuration is a map whose keys are those documented in
   [OpenID Connect Dynamic Client Registration 1.0 incorporating errata set 1](https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata).
+
+  Must at least contain the `"client_id"` field of the client.
   """
   @type client_config :: %{optional(String.t()) => any()}
 

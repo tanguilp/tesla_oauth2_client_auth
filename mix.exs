@@ -5,7 +5,7 @@ defmodule TeslaOAuth2ClientAuth.MixProject do
     [
       app: :tesla_oauth2_client_auth,
       description: "Tesla middlewares for OAuth2 and OpenID Connect client authentication",
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),

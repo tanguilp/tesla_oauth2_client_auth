@@ -6,7 +6,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretPost do
   test "send request with valid credentials" do
     client =
       Tesla.client(
-        [{ClientSecretPost, %{client_id: "client1", client_config: client_config()}}],
+        [{ClientSecretPost, %{client_config: client_config()}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -19,7 +19,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretPost do
   test "raises on missing client id" do
     client =
       Tesla.client(
-        [{ClientSecretPost, %{client_config: client_config()}}],
+        [{ClientSecretPost, %{client_config: Map.delete(client_config(), "client_id")}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -43,7 +43,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretPost do
   test "raises on missing client config data" do
     client =
       Tesla.client(
-        [{ClientSecretPost, %{client_id: "client1", client_config: %{}}}],
+        [{ClientSecretPost, %{client_config: %{}}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -55,7 +55,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretPost do
   test "raises when body is not a map" do
     client =
       Tesla.client(
-        [{ClientSecretPost, %{client_id: "client1", client_config: %{}}}],
+        [{ClientSecretPost, %{client_config: %{}}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -65,6 +65,9 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretPost do
   end
 
   defp client_config() do
-    %{"client_secret" => "some secret"}
+    %{
+      "client_id" => "client1",
+      "client_secret" => "some secret"
+    }
   end
 end

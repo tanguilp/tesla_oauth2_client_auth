@@ -16,7 +16,7 @@ defmodule TeslaOAuth2ClientAuth.ClientSecretPost do
 
   @impl true
   def call(%Tesla.Env{body: %{}} = env, next, opts) do
-    client_id = opts[:client_id] || raise "Missing client id"
+    client_id = opts[:client_config]["client_id"] || raise "Missing client id"
     client_secret = opts[:client_config]["client_secret"] || raise "Missing client secret`"
 
     body =

@@ -9,7 +9,7 @@ authentication
 ```elixir
 def deps do
   [
-    {:tesla_oauth2_client_auth, "~> 0.1.0"}
+    {:tesla_oauth2_client_auth, "~> 0.2.0"}
   ]
 end
 ```

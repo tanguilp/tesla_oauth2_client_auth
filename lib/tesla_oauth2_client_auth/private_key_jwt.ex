@@ -28,7 +28,7 @@ defmodule TeslaOAuth2ClientAuth.PrivateKeyJWT do
 
   @impl true
   def call(%Tesla.Env{body: %{}} = env, next, opts) do
-    client_id = opts[:client_id] || raise "Missing client id"
+    client_id = opts[:client_config]["client_id"] || raise "Missing client id"
 
     body =
       env.body
@@ -41,7 +41,7 @@ defmodule TeslaOAuth2ClientAuth.PrivateKeyJWT do
   end
 
   defp build_assertion(opts) do
-    client_id = opts[:client_id] || raise "Missing client id"
+    client_id = opts[:client_config]["client_id"] || raise "Missing client id"
     jwks = opts[:client_config]["jwks"]["keys"] || raise "Missing jwks`"
 
     issuer =

@@ -11,7 +11,6 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
         [
           {PrivateKeyJWT,
            %{
-             client_id: "client1",
              client_config: client_config("client1"),
              server_metadata: server_metadata(),
              jwt_sig_alg: "ES256"
@@ -45,7 +44,6 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
         [
           {PrivateKeyJWT,
            %{
-             client_id: "client1",
              client_config: client_config("client1"),
              server_metadata: server_metadata(),
              jwt_sig_alg: "ES256",
@@ -74,7 +72,6 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
         [
           {PrivateKeyJWT,
            %{
-             client_id: "client1",
              client_config: client_config("client1"),
              server_metadata: server_metadata(),
              jwt_sig_alg: "ES256",
@@ -112,7 +109,7 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   test "raises on missing client config key" do
     client =
       Tesla.client(
-        [{PrivateKeyJWT, %{client_id: "client1"}}],
+        [{PrivateKeyJWT, %{}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -124,7 +121,7 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   test "raises on missing client config data" do
     client =
       Tesla.client(
-        [{PrivateKeyJWT, %{client_id: "client1", client_config: %{}}}],
+        [{PrivateKeyJWT, %{client_config: %{}}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -135,6 +132,7 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
 
   defp client_config("client1") do
     %{
+      "client_id" => "client1",
       "token_endpoint_auth_signing_alg" => "ES256",
       "jwks" => %{
         "keys" => [

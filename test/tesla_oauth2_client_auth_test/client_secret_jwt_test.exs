@@ -11,7 +11,6 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
         [
           {ClientSecretJWT,
            %{
-             client_id: "client1",
              client_config: client_config("client1"),
              server_metadata: server_metadata()
            }}
@@ -48,7 +47,6 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
         [
           {ClientSecretJWT,
            %{
-             client_id: "client2",
              client_config: client_config("client2"),
              server_metadata: server_metadata()
            }}
@@ -81,7 +79,6 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
         [
           {ClientSecretJWT,
            %{
-             client_id: "client1",
              client_config: client_config("client1"),
              server_metadata: server_metadata(),
              jwt_jti_callback: &TeslaOAuth2ClientAuthTest.Callback.jti_callback/1
@@ -113,7 +110,6 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
         [
           {ClientSecretJWT,
            %{
-             client_id: "client1",
              client_config: client_config("client1"),
              server_metadata: server_metadata(),
              jwt_additional_claims: %{"some_claim" => "some_value"}
@@ -145,7 +141,6 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
         [
           {ClientSecretJWT,
            %{
-             client_id: "client3",
              client_config: client_config("client3"),
              server_metadata: server_metadata()
            }}
@@ -191,7 +186,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   test "raises on missing client config key" do
     client =
       Tesla.client(
-        [{ClientSecretJWT, %{client_id: "client1"}}],
+        [{ClientSecretJWT, %{}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -203,7 +198,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   test "raises on missing client config data" do
     client =
       Tesla.client(
-        [{ClientSecretJWT, %{client_id: "client1", client_config: %{}}}],
+        [{ClientSecretJWT, %{client_config: %{}}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -214,6 +209,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
 
   defp client_config("client1") do
     %{
+      "client_id" => "client1",
       "token_endpoint_auth_signing_alg" => "HS256",
       "client_secret" => "some secret"
     }
@@ -221,6 +217,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
 
   defp client_config("client2") do
     %{
+      "client_id" => "client2",
       "token_endpoint_auth_signing_alg" => "HS256",
       "jwks" => %{
         "keys" => [
@@ -232,6 +229,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
 
   defp client_config("client3") do
     %{
+      "client_id" => "client3",
       "token_endpoint_auth_signing_alg" => "HS512",
       "client_secret" => "some other secret"
     }

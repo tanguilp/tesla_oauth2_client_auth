@@ -6,7 +6,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   test "send request with valid credentials" do
     client =
       Tesla.client(
-        [{ClientSecretBasic, %{client_id: "client1", client_config: client_config()}}],
+        [{ClientSecretBasic, %{client_config: client_config()}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -20,7 +20,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   test "raises on missing client id" do
     client =
       Tesla.client(
-        [{ClientSecretBasic, %{client_config: client_config()}}],
+        [{ClientSecretBasic, %{client_config: Map.delete(client_config(), "client_id")}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -44,7 +44,7 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   test "raises on missing client config data" do
     client =
       Tesla.client(
-        [{ClientSecretBasic, %{client_id: "client1", client_config: %{}}}],
+        [{ClientSecretBasic, %{client_config: %{}}}],
         TeslaOAuth2ClientAuthTest.Adapter
       )
 
@@ -54,6 +54,9 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   end
 
   defp client_config() do
-    %{"client_secret" => "some secret"}
+    %{
+      "client_id" => "client1",
+      "client_secret" => "some secret"
+    }
   end
 end
