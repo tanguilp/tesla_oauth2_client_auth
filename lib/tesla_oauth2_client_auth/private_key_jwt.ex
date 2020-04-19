@@ -36,8 +36,9 @@ defmodule TeslaOAuth2ClientAuth.PrivateKeyJWT do
 
   defp build_assertion(opts) do
     client_id = opts[:client_id] || raise "Missing client id"
-    jwks = opts[:client_config]["jwks"] || raise "Missing jwks`"
-    issuer = opts[:server_metadata]["issuer"] || raise "Missing issuer from server metadata"
+    jwks = opts[:client_config]["jwks"]["keys"] || raise "Missing jwks`"
+    issuer = opts[:server_metadata]["token_endpoint"] ||
+      raise "Missing token endpoint to be used as the audience from server metadata"
     lifetime = opts[:jwt_lifetime] || 30
     sig_alg = opts[:jwt_sig_alg] || "RS256"
 
@@ -63,7 +64,7 @@ defmodule TeslaOAuth2ClientAuth.PrivateKeyJWT do
       |> Jason.encode!()
 
     signature_key(jwks, sig_alg)
-    |> JOSE.JWS.from_map()
+    |> JOSE.JWK.from_map()
     |> JOSE.JWS.sign(message, %{"alg" => sig_alg})
     |> JOSE.JWS.compact()
     |> elem(1)

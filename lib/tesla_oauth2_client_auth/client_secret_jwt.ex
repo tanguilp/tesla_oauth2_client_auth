@@ -4,7 +4,8 @@ defmodule TeslaOAuth2ClientAuth.ClientSecretJWT do
   [https://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication](OpenID Connect clients)
 
   The client configuration must contain a `"client_secret"` member whose value is the
-  client secret (a `String.t()`). Note that the body must be a map to be later serialized with
+  client secret (a `String.t()`) or a JWK in its `"jwks"` attribute that is suited for signature
+  and has a `"kty"` of `"oct"`. Note that the body must be a map to be later serialized with
   the `Tesla.Middleware.FormUrlencoded`.
 
   The options of this middleware are:
@@ -37,8 +38,8 @@ defmodule TeslaOAuth2ClientAuth.ClientSecretJWT do
 
   defp build_assertion(opts) do
     client_id = opts[:client_id] || raise "Missing client id"
-    client_secret = opts[:client_config]["client_secret"] || raise "Missing client secret`"
-    issuer = opts[:server_metadata]["issuer"] || raise "Missing issuer from server metadata"
+    issuer = opts[:server_metadata]["token_endpoint"] ||
+      raise "Missing token endpoint to be used as the audience from server metadata"
     lifetime = opts[:jwt_lifetime] || 30
     mac_alg = opts[:jwt_mac_alg] || "HS256"
 
@@ -63,10 +64,25 @@ defmodule TeslaOAuth2ClientAuth.ClientSecretJWT do
       |> Map.merge(opts[:jwt_additional_claims] || %{})
       |> Jason.encode!()
 
-    JOSE.JWK.from(%{"k" => Base.url_encode64(client_secret, padding: false), "kty" => "oct"})
+    client_jwk(opts[:client_config])
     |> JOSE.JWS.sign(message, %{"alg" => mac_alg})
     |> JOSE.JWS.compact()
     |> elem(1)
+  end
+
+  defp client_jwk(%{"client_secret" => client_secret}) do
+    JOSE.JWK.from(%{"k" => Base.url_encode64(client_secret, padding: false), "kty" => "oct"})
+  end
+
+  defp client_jwk(%{"jwks" => jwks}) do
+    jwks["keys"]
+    |> JOSEUtils.JWKS.signature_keys()
+    |> Enum.filter(fn jwk -> jwk["kty"] == "oct" end)
+    |> List.first()
+  end
+
+  defp client_jwk(_) do
+    raise "missing client secret or jwks"
   end
 
   defp gen_jti(), do: :crypto.strong_rand_bytes(16) |> Base.encode64(padding: false)

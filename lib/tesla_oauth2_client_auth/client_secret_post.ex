@@ -13,14 +13,16 @@ defmodule TeslaOAuth2ClientAuth.ClientSecretPost do
   @behaviour Tesla.Middleware
 
   @impl true
-  def call(%Tesla.Env{body: %{} = body} = env, next, opts) do
+  def call(%Tesla.Env{body: %{}} = env, next, opts) do
     client_id = opts[:client_id] || raise "Missing client id"
     client_secret = opts[:client_config]["client_secret"] || raise "Missing client secret`"
 
-    %Tesla.Env{
-      env
-      | body: %{body | "client_id" => client_id, "client_secret" => client_secret}
-    }
+    body =
+      env.body
+      |> Map.put("client_id", client_id)
+      |> Map.put("client_secret", client_secret)
+
+    %Tesla.Env{env | body: body}
     |> Tesla.run(next)
   end
 end
