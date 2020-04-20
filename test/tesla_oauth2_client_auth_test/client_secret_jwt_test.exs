@@ -6,24 +6,29 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   @assertion_type "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 
   test "valid request using client's secret" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata()
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {ClientSecretJWT,
+           %{
+             client_id: "client1",
+             client_config: client_config("client1"),
+             server_metadata: server_metadata()
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
     assert result.body["client_assertion_type"] == @assertion_type
 
     assertion = result.body["client_assertion"]
 
-    jwk = JOSE.JWK.from(%{
-      "kty" => "oct",
-      "k" => Base.encode64(client_config("client1")["client_secret"])}
-    )
+    jwk =
+      JOSE.JWK.from(%{
+        "kty" => "oct",
+        "k" => Base.encode64(client_config("client1")["client_secret"])
+      })
 
     assert {true, content, _} = JOSE.JWS.verify_strict(jwk, ["HS256"], assertion)
 
@@ -38,14 +43,18 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "valid request using client's JWKs" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{
-        client_id: "client2",
-        client_config: client_config("client2"),
-        server_metadata: server_metadata()
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {ClientSecretJWT,
+           %{
+             client_id: "client2",
+             client_config: client_config("client2"),
+             server_metadata: server_metadata()
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
     assert result.body["client_assertion_type"] == @assertion_type
@@ -67,24 +76,29 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "jti callback is called" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata(),
-        jwt_jti_callback: &TeslaOAuth2ClientAuthTest.Callback.jti_callback/1
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {ClientSecretJWT,
+           %{
+             client_id: "client1",
+             client_config: client_config("client1"),
+             server_metadata: server_metadata(),
+             jwt_jti_callback: &TeslaOAuth2ClientAuthTest.Callback.jti_callback/1
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
 
     assertion = result.body["client_assertion"]
 
-    jwk = JOSE.JWK.from(%{
-      "kty" => "oct",
-      "k" => Base.encode64(client_config("client1")["client_secret"])}
-    )
+    jwk =
+      JOSE.JWK.from(%{
+        "kty" => "oct",
+        "k" => Base.encode64(client_config("client1")["client_secret"])
+      })
 
     assert {true, content, _} = JOSE.JWS.verify_strict(jwk, ["HS256"], assertion)
 
@@ -94,24 +108,29 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "additional claims are added" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata(),
-        jwt_additional_claims: %{"some_claim" => "some_value"}
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {ClientSecretJWT,
+           %{
+             client_id: "client1",
+             client_config: client_config("client1"),
+             server_metadata: server_metadata(),
+             jwt_additional_claims: %{"some_claim" => "some_value"}
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
 
     assertion = result.body["client_assertion"]
 
-    jwk = JOSE.JWK.from(%{
-      "kty" => "oct",
-      "k" => Base.encode64(client_config("client1")["client_secret"])}
-    )
+    jwk =
+      JOSE.JWK.from(%{
+        "kty" => "oct",
+        "k" => Base.encode64(client_config("client1")["client_secret"])
+      })
 
     assert {true, content, _} = JOSE.JWS.verify_strict(jwk, ["HS256"], assertion)
 
@@ -121,32 +140,36 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "valid request using client's secret and HS512 MAC alg" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata(),
-        jwt_mac_alg: "HS512"
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {ClientSecretJWT,
+           %{
+             client_id: "client3",
+             client_config: client_config("client3"),
+             server_metadata: server_metadata()
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
     assert result.body["client_assertion_type"] == @assertion_type
 
     assertion = result.body["client_assertion"]
 
-    jwk = JOSE.JWK.from(%{
-      "kty" => "oct",
-      "k" => Base.encode64(client_config("client1")["client_secret"])}
-    )
+    jwk =
+      JOSE.JWK.from(%{
+        "kty" => "oct",
+        "k" => Base.encode64(client_config("client3")["client_secret"])
+      })
 
     assert {true, content, _} = JOSE.JWS.verify_strict(jwk, ["HS512"], assertion)
 
     content = Jason.decode!(content)
 
-    assert content["iss"] == "client1"
-    assert content["sub"] == "client1"
+    assert content["iss"] == "client3"
+    assert content["sub"] == "client3"
     assert content["aud"] == server_metadata()["token_endpoint"]
     assert is_integer(content["exp"])
     assert is_integer(content["iat"])
@@ -154,10 +177,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "raises on missing client id" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{client_config: client_config("client1")}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretJWT, %{client_config: client_config("client1")}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.post(client, "/", %{})
@@ -165,10 +189,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "raises on missing client config key" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{client_id: "client1"}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretJWT, %{client_id: "client1"}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.post(client, "/", %{})
@@ -176,10 +201,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
   end
 
   test "raises on missing client config data" do
-    client = Tesla.client(
-      [{ClientSecretJWT, %{client_id: "client1", client_config: %{}}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretJWT, %{client_id: "client1", client_config: %{}}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.post(client, "/", %{})
@@ -188,12 +214,14 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
 
   defp client_config("client1") do
     %{
+      "token_endpoint_auth_signing_alg" => "HS256",
       "client_secret" => "some secret"
     }
   end
 
   defp client_config("client2") do
     %{
+      "token_endpoint_auth_signing_alg" => "HS256",
       "jwks" => %{
         "keys" => [
           %{"k" => "vbGfJodzovvNvtZ9W2uMlw", "kty" => "oct"}
@@ -202,9 +230,17 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretJWT do
     }
   end
 
+  defp client_config("client3") do
+    %{
+      "token_endpoint_auth_signing_alg" => "HS512",
+      "client_secret" => "some other secret"
+    }
+  end
+
   defp server_metadata() do
     %{
-      "token_endpoint" => "https://www.example.com/auth/token"
+      "token_endpoint" => "https://www.example.com/auth/token",
+      "token_endpoint_auth_signing_alg_values_supported" => ["HS256", "HS512"]
     }
   end
 end

@@ -1,11 +1,10 @@
 # TeslaOAuth2ClientAuth
 
-**TODO: Add description**
+[Tesla](https://github.com/teamon/tesla) middlewares for OAuth2 and OpenID Connect client
+authentication
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `tesla_oauth2_client_auth` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,7 +14,12 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/tesla_oauth2_client_auth](https://hexdocs.pm/tesla_oauth2_client_auth).
+## Support
 
+|          Method         |                Implementation             | Protocol       |
+|:-----------------------:|:-----------------------------------------:|:--------------:|
+| `"none"`                | `TeslaOAuth2ClientAuth.None`              | OAuth2         |
+| `"client_secret_basic"` | `TeslaOAuth2ClientAuth.ClientSecretBasic` | OAuth2         |
+| `"client_secret_post"`  | `TeslaOAuth2ClientAuth.ClientSecretPost`  | OAuth2         |
+| `"client_secret_jwt"`   | `TeslaOAuth2ClientAuth.ClientSecretJWT`   | OpenID Connect |
+| `"private_key_jwt"`     | `TeslaOAuth2ClientAuth.PrivateKeyJWT`     | OpenID Connect |

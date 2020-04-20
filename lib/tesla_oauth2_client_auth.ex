@@ -1,16 +1,17 @@
 defmodule TeslaOAuth2ClientAuth do
   @moduledoc """
-  Tesla middlewares for OAuth2 and OpenID Connect client authentication
+  [Tesla](https://github.com/teamon/tesla) middlewares for OAuth2 and OpenID Connect client
+  authentication
 
   ## Support
 
-  |Method|Implementation|Protocol|
-  |:----:|--------------|:------:|
-  |none|`TeslaOAuth2ClientAuth.None`|OAuth2|
-  |client_secret_basic|`TeslaOAuth2ClientAuth.ClientSecretBasic`|OAuth2|
-  |client_secret_post|`TeslaOAuth2ClientAuth.ClientSecretPost`|OAuth2|
-  |client_secret_jwt|`TeslaOAuth2ClientAuth.ClientSecretJWT`|OpenID Connect|
-  |private_key_jwt|`TeslaOAuth2ClientAuth.PrivateKeyJWT`|OpenID Connect|
+  |          Method         |                Implementation             | Protocol       |
+  |:-----------------------:|:-----------------------------------------:|:--------------:|
+  | `"none"`                | `TeslaOAuth2ClientAuth.None`              | OAuth2         |
+  | `"client_secret_basic"` | `TeslaOAuth2ClientAuth.ClientSecretBasic` | OAuth2         |
+  | `"client_secret_post"`  | `TeslaOAuth2ClientAuth.ClientSecretPost`  | OAuth2         |
+  | `"client_secret_jwt"`   | `TeslaOAuth2ClientAuth.ClientSecretJWT`   | OpenID Connect |
+  | `"private_key_jwt"`     | `TeslaOAuth2ClientAuth.PrivateKeyJWT`     | OpenID Connect |
 
   Note that `Tesla` does not support modifying TLS parameters in middlewares, which is
   why `"tls_client_auth"` and `"self_signed_tls_client_auth"` are unsupported.
@@ -32,7 +33,7 @@ defmodule TeslaOAuth2ClientAuth do
 
     @impl true
     def message(%{requested_method: nil}) do
-      "no authentication method set"
+      "no authentication method set in client configuration"
     end
 
     def message(%{requested_method: requested_method}) do
@@ -40,36 +41,57 @@ defmodule TeslaOAuth2ClientAuth do
     end
   end
 
-  @type opts :: [opt]
-
-  @type opt ::
-          {:client_id, client_config}
-          | {:client_config, client_config}
-          | {:server_metadata, %{optional(String.t()) => any()}}
-          | {atom(), any()}
+  @type opts :: %{
+          required(:client_id) => String.t(),
+          required(:client_config) => client_config(),
+          required(:server_metadata) => server_metadata(),
+          optional(atom()) => any()
+        }
 
   @typedoc """
   Client configuration is a map whose keys are those documented in
   [OpenID Connect Dynamic Client Registration 1.0 incorporating errata set 1](https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata).
-
-  In addition, other keys can be used by specific implementations. For instance,
-  `"client_secret_basic"` uses the `"client_secret"`.
   """
   @type client_config :: %{optional(String.t()) => any()}
 
+  @typedoc """
+  OAuth2 or OpenID Connect server metadata as documented in one of:
+  - [OpenID Connect Discovery 1.0 incorporating errata set 1](https://openid.net/specs/openid-connect-discovery-1_0.html)
+  - [OAuth 2.0 Authorization Server Metadata](https://tools.ietf.org/html/rfc8414)
+  """
+  @type server_metadata :: %{optional(String.t()) => any()}
+
   @doc """
-  Returns the #{__MODULE__} middleware for client authentication from client configuration
+  Returns the `#{__MODULE__}` middleware for client authentication from client configuration
   (using the `"token_endpoint_auth_method"` configuration field) or an authentication method
   string
-
-  If unknown, raises an `#{__MODULE__}.UnsupportedClientAuthenticationMethod` exception.
   """
-  @spec middleware!(client_config() | String.t()) :: module() | no_return()
-  def middleware!(%{} = config), do: middleware!(config["token_endpoint_auth_method"])
-  def middleware!("client_secret_basic"), do: TeslaOAuth2ClientAuth.ClientSecretBasic
-  def middleware!("client_secret_post"), do: TeslaOAuth2ClientAuth.ClientSecretPost
-  def middleware!("none"), do: TeslaOAuth2ClientAuth.None
+  @spec implementation(client_config() | (token_endpoint_auth_method :: String.t())) ::
+          {:ok, module()} | {:error, UnsupportedClientAuthenticationMethod.t()}
+  def implementation(%{} = config), do: implementation(config["token_endpoint_auth_method"])
+  def implementation("client_secret_basic"), do: {:ok, TeslaOAuth2ClientAuth.ClientSecretBasic}
+  def implementation("client_secret_post"), do: {:ok, TeslaOAuth2ClientAuth.ClientSecretPost}
+  def implementation("client_secret_jwt"), do: {:ok, TeslaOAuth2ClientAuth.ClientSecretJWT}
+  def implementation("private_key_jwt"), do: {:ok, TeslaOAuth2ClientAuth.PrivateKeyJWT}
+  def implementation("none"), do: {:ok, TeslaOAuth2ClientAuth.None}
 
-  def middleware!(unknown),
-    do: raise(UnsupportedClientAuthenticationMethod, requested_method: unknown)
+  def implementation(unknown),
+    do: {:error, %UnsupportedClientAuthenticationMethod{requested_method: unknown}}
+
+  @doc """
+  Returns the `#{__MODULE__}` middleware for client authentication from client configuration
+  (using the `"token_endpoint_auth_method"` configuration field) or an authentication method
+  string
+  """
+  @spec implementation!(client_config() | (token_endpoint_auth_method :: String.t())) ::
+          module() | no_return()
+  def implementation!(conf_or_method) do
+    case implementation(conf_or_method) do
+      {:ok, impl} ->
+        impl
+
+      {:error, e} ->
+        raise e
+    end
+  end
 end

@@ -6,15 +6,19 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   @assertion_type "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 
   test "valid request using client's JWKs" do
-    client = Tesla.client(
-      [{PrivateKeyJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata(),
-        jwt_sig_alg: "ES256"
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {PrivateKeyJWT,
+           %{
+             client_id: "client1",
+             client_config: client_config("client1"),
+             server_metadata: server_metadata(),
+             jwt_sig_alg: "ES256"
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
     assert result.body["client_assertion_type"] == @assertion_type
@@ -36,16 +40,20 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   end
 
   test "jti callback is called" do
-    client = Tesla.client(
-      [{PrivateKeyJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata(),
-        jwt_sig_alg: "ES256",
-        jwt_jti_callback: &TeslaOAuth2ClientAuthTest.Callback.jti_callback/1
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {PrivateKeyJWT,
+           %{
+             client_id: "client1",
+             client_config: client_config("client1"),
+             server_metadata: server_metadata(),
+             jwt_sig_alg: "ES256",
+             jwt_jti_callback: &TeslaOAuth2ClientAuthTest.Callback.jti_callback/1
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
 
@@ -61,16 +69,20 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   end
 
   test "additional claims are added" do
-    client = Tesla.client(
-      [{PrivateKeyJWT, %{
-        client_id: "client1",
-        client_config: client_config("client1"),
-        server_metadata: server_metadata(),
-        jwt_sig_alg: "ES256",
-        jwt_additional_claims: %{"some_claim" => "some_value"}
-      }}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [
+          {PrivateKeyJWT,
+           %{
+             client_id: "client1",
+             client_config: client_config("client1"),
+             server_metadata: server_metadata(),
+             jwt_sig_alg: "ES256",
+             jwt_additional_claims: %{"some_claim" => "some_value"}
+           }}
+        ],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.post(client, "/", %{})
 
@@ -86,10 +98,11 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   end
 
   test "raises on missing client id" do
-    client = Tesla.client(
-      [{PrivateKeyJWT, %{client_config: client_config("client1")}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{PrivateKeyJWT, %{client_config: client_config("client1")}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.post(client, "/", %{})
@@ -97,10 +110,11 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   end
 
   test "raises on missing client config key" do
-    client = Tesla.client(
-      [{PrivateKeyJWT, %{client_id: "client1"}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{PrivateKeyJWT, %{client_id: "client1"}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.post(client, "/", %{})
@@ -108,10 +122,11 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
   end
 
   test "raises on missing client config data" do
-    client = Tesla.client(
-      [{PrivateKeyJWT, %{client_id: "client1", client_config: %{}}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{PrivateKeyJWT, %{client_id: "client1", client_config: %{}}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.post(client, "/", %{})
@@ -120,6 +135,7 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
 
   defp client_config("client1") do
     %{
+      "token_endpoint_auth_signing_alg" => "ES256",
       "jwks" => %{
         "keys" => [
           %{
@@ -136,7 +152,8 @@ defmodule TeslaOAuth2ClientAuthTest.PrivateKeyJWT do
 
   defp server_metadata() do
     %{
-      "token_endpoint" => "https://www.example.com/auth/token"
+      "token_endpoint" => "https://www.example.com/auth/token",
+      "token_endpoint_auth_signing_alg_values_supported" => ["ES256"]
     }
   end
 end

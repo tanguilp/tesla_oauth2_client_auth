@@ -4,10 +4,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   alias TeslaOAuth2ClientAuth.ClientSecretBasic
 
   test "send request with valid credentials" do
-    client = Tesla.client(
-      [{ClientSecretBasic, %{client_id: "client1", client_config: client_config()}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretBasic, %{client_id: "client1", client_config: client_config()}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert {:ok, result} = Tesla.get(client, "/")
 
@@ -17,10 +18,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   end
 
   test "raises on missing client id" do
-    client = Tesla.client(
-      [{ClientSecretBasic, %{client_config: client_config()}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretBasic, %{client_config: client_config()}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.get(client, "/")
@@ -28,10 +30,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   end
 
   test "raises on missing client config key" do
-    client = Tesla.client(
-      [{ClientSecretBasic, %{client_id: "client1"}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretBasic, %{client_id: "client1"}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.get(client, "/")
@@ -39,10 +42,11 @@ defmodule TeslaOAuth2ClientAuthTest.ClientSecretBasic do
   end
 
   test "raises on missing client config data" do
-    client = Tesla.client(
-      [{ClientSecretBasic, %{client_id: "client1", client_config: %{}}}],
-      TeslaOAuth2ClientAuthTest.Adapter
-    )
+    client =
+      Tesla.client(
+        [{ClientSecretBasic, %{client_id: "client1", client_config: %{}}}],
+        TeslaOAuth2ClientAuthTest.Adapter
+      )
 
     assert_raise RuntimeError, fn ->
       Tesla.get(client, "/")

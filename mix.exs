@@ -4,11 +4,18 @@ defmodule TeslaOAuth2ClientAuth.MixProject do
   def project do
     [
       app: :tesla_oauth2_client_auth,
+      description: "Tesla middlewares for OAuth2 and OpenID Connect client authentication",
       version: "0.1.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
-      deps: deps()
+      docs: [
+        main: "readme",
+        extras: ["README.md"]
+      ],
+      deps: deps(),
+      package: package(),
+      source_url: "https://github.com/tanguilp/tesla_oauth2_client_auth"
     ]
   end
 
@@ -25,12 +32,19 @@ defmodule TeslaOAuth2ClientAuth.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:jason, "~> 1.2"},
       {:jose, "~> 1.10.1"},
-      {:jose_utils, path: "../jose_utils"},
+      {:jose_utils, "~> 0.1.0"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:tesla, "~> 1.3.0"}
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib","test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  def package() do
+    [
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/tanguilp/tesla_oauth2_client_auth"}
+    ]
+  end
 end
